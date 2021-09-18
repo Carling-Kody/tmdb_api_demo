@@ -1,22 +1,27 @@
-import requests
-import os
+import pytest
+from tmdb.discover import discover_movies
 
-BASE_URL = 'https://api.themoviedb.org/3'
 
-def test_discover_movie():
-    headers = {"Authorization": "Bearer {}".format(os.environ.get("API_KEY"))}
-    
+def test_discover_movies():
     params = {
-        "page": 1,
+        "page": 100,
+        "include_video": True,
         "language": "en-US",
         "sort_by": "popularity.desc",
-         "include_adult": "false"
-         }
-    response = requests.get(
-        BASE_URL + "/discover/movie", headers=headers, params=params
-        )
+        "include_adult": "false",
+    }
+    response = discover_movies(params)
+    assert response["page"] == 100
 
-    assert response.status_code == 200
 
-def test_discover_tv():
-    pass
+@pytest.mark.parametrize("params", [{}, None])
+def test_discover_movies_with_no_params_uses_defaults(params):
+    response = discover_movies(params)
+    assert response["page"] == 1
+
+
+@pytest.mark.parametrize("page", [0, 1001])
+def test_discover_movies_with_invalid_page(page):
+    params = {"page": page}
+    with pytest.raises(ValueError):
+        discover_movies(params)

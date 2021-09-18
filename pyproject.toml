@@ -18,6 +18,17 @@ black = "^21.8b0"
 flake8 = "^3.9.2"
 poethepoet = "^0.10.0"
 
+[tool.black]
+line-length = 120
+
+[tool.poe.tasks]
+test = { "cmd" = "pytest tests --cov=. --cov-report term-missing", "help" = "Run Tests and get Code Coverage Report" }
+lint = [{ "ref" = "_lint-syntax" }, { "ref" = "_lint-full" }]
+
+# private tasks
+_lint-syntax = { "cmd" = "flake8 ./tmdb ./tests --select=E9,F63,F7,F82 --show-source", "help" = "Lint for syntax error and undefined names" }
+_lint-full = { "cmd" = "flake8 ./tmdb ./tests --exit-zero --max-complexity=10", "help" = "Lint for style, complexity, and everything else" }
+
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
